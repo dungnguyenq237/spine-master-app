@@ -1,0 +1,26 @@
+const field = (
+  id: string,
+  label: string,
+  value: number,
+  min: number,
+  max: number,
+  step = 1,
+) =>
+  `<label>${label}<input id="${id}" type="number" value="${value}" min="${min}" max="${max}" step="${step}" required></label>`;
+export const layout = `
+<main class="app"><header class="header"><h1>Spine Studio</h1><p>Local animation workspace · Offline export</p></header>
+<div class="controls"><button class="btn btn-primary" id="pick">Choose folders</button><input id="search" type="search" placeholder="Search assets and animations" aria-label="Search assets"><label>Card zoom<select id="cardZoom"><option value="1">Default</option><option value=".5">2×</option><option value=".25">4×</option></select></label><button class="btn" id="clear">Clear</button><button class="btn" id="encoder">Configure FFmpeg</button></div>
+<p id="status" role="status">Choose folders to begin. Runtime bundles must be provisioned before loading.</p><div id="gallery" class="grid"></div>
+<section class="queue-panel" aria-labelledby="queueTitle"><h2 id="queueTitle">Export queue</h2><progress id="overallProgress" max="1" value="0"></progress><p id="queueSummary">No jobs</p><div id="queue"></div></section></main>
+<dialog id="workspace"><div class="workspace-header"><h2 id="workspaceTitle">Animation</h2><button id="closeWorkspace" class="btn" aria-label="Close workspace">Close</button></div>
+<p id="workspaceError" role="alert"></p><div class="workspace-grid"><section class="preview-panel"><div id="canvasWrap"></div><div class="preview-controls"><label>Animation<select id="animation"></select></label><label>Skin<select id="skin"></select></label><button id="play" class="btn">Pause</button><label>FPS<select id="previewFps"><option>30</option><option selected>60</option><option>120</option></select></label><input id="timeline" type="range" min="0" max="1" step=".001" value="0" aria-label="Timeline"><span id="timeLabel"></span><label>Zoom<input id="zoom" type="range" min=".1" max="10" step=".05" value="1"></label><button id="fit" class="btn">Fit</button></div></section>
+<form id="exportForm"><h3>Export settings</h3><div class="form-grid">
+<label>Format<select id="format"><option value="mp4">MP4 · H.264</option><option value="gif">Animated GIF</option><option value="png">PNG sequence</option><option value="sheet">Sprite sheets</option><option value="prores">MOV · ProRes 4444</option><option value="webm">WebM · VP9 alpha</option></select></label>
+<label>Quality<select id="quality"><option value="fast">Fast</option><option value="balanced" selected>Balanced</option><option value="high">High</option><option value="maximum">Maximum</option></select></label>
+${field("width", "Width", 1024, 2, 8192)}${field("height", "Height", 1024, 2, 8192)}<label class="check"><input id="aspectLock" type="checkbox" checked>Lock aspect ratio</label>${field("fps", "Output FPS", 30, 1, 120)}${field("start", "Start (s)", 0, 0, 86400, 0.001)}${field("end", "End (s)", 1, 0.001, 86400, 0.001)}${field("speed", "Speed", 1, 0.01, 10, 0.01)}${field("loops", "Timeline repeats", 1, 1, 100)}
+<label class="check"><input id="includeFinal" type="checkbox">Include final pose</label><label class="check"><input id="transparent" type="checkbox">Transparent</label><label>Background<input id="background" type="color" value="#10101a"></label>
+<label>Supersampling<select id="supersampling"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label><label>Framing<select id="framing"><option value="auto">Auto-fit animation</option><option value="tight">Tight crop</option><option value="fixed">Fixed canvas</option><option value="custom">Custom crop</option></select></label>${field("padding", "World padding", 20, 0, 10000)}
+</div><details><summary>Advanced settings</summary><div class="form-grid">${field("simulationFps", "Simulation FPS", 120, 30, 480)}${field("cameraX", "Camera X", 0, -100000, 100000)}${field("cameraY", "Camera Y", 0, -100000, 100000)}${field("cameraWidth", "World width", 500, 1, 100000)}${field("cameraHeight", "World height", 500, 1, 100000)}${field("offsetX", "Offset X", 0, -100000, 100000)}${field("offsetY", "Offset Y", 0, -100000, 100000)}${field("scale", "Scale", 1, 0.01, 100, 0.01)}${field("columns", "Sheet columns", 8, 1, 32)}${field("sheetPadding", "Sheet padding (px)", 0, 0, 64)}
+<label>GIF dither<select id="dither"><option value="sierra2_4a">Sierra 2-4A</option><option value="bayer">Bayer</option><option value="none">None</option></select></label>${field("paletteColors", "GIF colors", 256, 4, 256)}${field("alphaThreshold", "GIF alpha threshold", 128, 0, 255)}${field("gifRepeat", "GIF repeat (0=forever, -1=once)", 0, -1, 65535)}
+</div></details><details><summary>Batch animations</summary><p>Selected animations use this preset and their full duration. Uncheck all to export the current trim.</p><div id="batchAnimations"></div></details>
+<p id="exportHint"></p><button id="destination" type="button" class="btn">Choose output folder</button><span id="destinationLabel">No folder selected</span><button class="btn btn-primary" type="submit">Add to export queue</button><p id="exportError" role="alert"></p></form></div></dialog>`;
