@@ -1,0 +1,2 @@
+* text=auto
+legacy/*.html -text whitespace=cr-at-eol

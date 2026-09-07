@@ -1,0 +1,29 @@
+{
+  "name": "spine-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build",
+    "runtime:add": "node scripts/provision-runtime.mjs"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.8.0",
+    "spine40": "npm:@esotericsoftware/spine-webgl@4.0.31",
+    "spine41": "npm:@esotericsoftware/spine-webgl@4.1.56",
+    "spine42": "npm:@esotericsoftware/spine-webgl@4.2.120",
+    "spine43": "npm:@esotericsoftware/spine-webgl@4.3.13"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.8.0",
+    "typescript": "~5.9.2",
+    "vite": "^7.1.3"
+  }
+}

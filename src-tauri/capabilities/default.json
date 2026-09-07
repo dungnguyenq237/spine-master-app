@@ -1,0 +1,6 @@
+{
+  "identifier": "main-window",
+  "description": "Local main window event access only; filesystem and encoder operations use scoped application commands.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

@@ -1,0 +1,3424 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spine Preview Gallery</title>
+    <meta
+      name="description"
+      content="Preview Spine animations directly in your browser"
+    />
+    <style>
+      :root {
+        --bg-primary: #0f0f1a;
+        --bg-secondary: #1a1a2e;
+        --bg-card: #16213e;
+        --bg-card-hover: #1c2a4a;
+        --accent: #6c63ff;
+        --accent-glow: rgba(108, 99, 255, 0.3);
+        --accent-secondary: #e94560;
+        --success: #10b981;
+        --text-primary: #f0f0f0;
+        --text-secondary: #8892b0;
+        --text-muted: #5a6480;
+        --border: rgba(255, 255, 255, 0.06);
+        --radius: 16px;
+        --radius-sm: 10px;
+        --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse at 20% 50%,
+            rgba(108, 99, 255, 0.08) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse at 80% 20%,
+            rgba(233, 69, 96, 0.06) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .app {
+        position: relative;
+        z-index: 1;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 30px 24px 60px;
+      }
+
+      .header,
+      .howto,
+      .status,
+      .modal-box {
+        border: 1px solid var(--border);
+        background: linear-gradient(
+          135deg,
+          var(--bg-secondary),
+          var(--bg-card)
+        );
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 28px;
+        padding: 40px 20px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        position: relative;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto auto 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          var(--accent),
+          var(--accent-secondary),
+          var(--accent)
+        );
+      }
+
+      .header h1 {
+        margin: 0 0 8px;
+        font-size: clamp(1.5rem, 3vw, 2rem);
+        font-weight: 800;
+        background: linear-gradient(
+          135deg,
+          #fff 0%,
+          var(--accent) 50%,
+          var(--accent-secondary) 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .header p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 14px;
+      }
+
+      .tag {
+        display: inline-flex;
+        margin-top: 12px;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--accent);
+        background: rgba(108, 99, 255, 0.1);
+        border-radius: 999px;
+      }
+
+      .howto {
+        padding: 20px 24px;
+        border-radius: var(--radius-sm);
+        margin-bottom: 20px;
+        line-height: 1.7;
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+
+      .howto strong,
+      .howto b,
+      .status b {
+        color: var(--text-primary);
+      }
+      .howto code {
+        background: rgba(108, 99, 255, 0.1);
+        color: var(--accent);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .btn,
+      .btn-export,
+      select,
+      input[type="number"],
+      input[type="text"] {
+        font: inherit;
+      }
+
+      .btn,
+      .btn-export {
+        border: 0;
+        cursor: pointer;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background 0.2s ease,
+          opacity 0.2s ease;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        font-size: 14px;
+        font-weight: 700;
+        border-radius: var(--radius-sm);
+      }
+
+      .btn-primary {
+        color: #fff;
+        background: linear-gradient(135deg, var(--accent), #7c74ff);
+        box-shadow: 0 4px 15px var(--accent-glow);
+      }
+
+      .btn-primary:hover,
+      .btn-export:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        color: var(--text-secondary);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+      }
+
+      .btn-secondary:hover {
+        color: var(--text-primary);
+        background: var(--bg-card-hover);
+      }
+
+      .search-box {
+        position: relative;
+        flex: 1;
+        min-width: 220px;
+        max-width: 420px;
+      }
+
+      .search-box .ico {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+      }
+
+      .search-box input,
+      .modal-controls select,
+      .modal-controls input[type="number"] {
+        width: 100%;
+        color: var(--text-primary);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        outline: none;
+      }
+
+      .search-box input {
+        padding: 12px 16px 12px 42px;
+      }
+
+      .search-box input:focus,
+      .modal-controls select:focus,
+      .modal-controls input[type="number"]:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+      }
+
+      .status {
+        display: none;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 18px;
+        border-radius: var(--radius-sm);
+        margin-bottom: 18px;
+      }
+
+      .status-left,
+      .status-right,
+      .progress-text,
+      .export-progress {
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+
+      .progress-bar {
+        display: none;
+        margin-bottom: 18px;
+      }
+      .progress-track {
+        width: 100%;
+        height: 6px;
+        background: var(--bg-card);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--accent),
+          var(--accent-secondary)
+        );
+        transition: width 0.2s ease;
+      }
+      .progress-text {
+        margin-top: 8px;
+        text-align: center;
+      }
+
+      .grid {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(12px);
+        animation: fade-up 0.35s ease forwards;
+        transition:
+          transform 0.25s ease,
+          border-color 0.25s ease,
+          box-shadow 0.25s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(108, 99, 255, 0.28);
+        box-shadow:
+          0 12px 40px rgba(0, 0, 0, 0.35),
+          0 0 20px var(--accent-glow);
+      }
+
+      @keyframes fade-up {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card-preview {
+        width: 100%;
+        aspect-ratio: 1;
+        background: #0a0a14;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        display: block;
+      }
+
+      .card-play {
+        position: absolute;
+        inset: 50% auto auto 50%;
+        transform: translate(-50%, -50%) scale(0.85);
+        width: 48px;
+        height: 48px;
+        border-radius: 999px;
+        background: rgba(108, 99, 255, 0.85);
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          transform 0.2s ease,
+          opacity 0.2s ease;
+      }
+
+      .card-play::after {
+        content: "";
+        position: absolute;
+        left: 18px;
+        top: 14px;
+        border-left: 14px solid white;
+        border-top: 9px solid transparent;
+        border-bottom: 9px solid transparent;
+      }
+
+      .card:hover .card-play {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      .card-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: rgba(108, 99, 255, 0.85);
+        font-size: 11px;
+        font-weight: 800;
+        color: #fff;
+        z-index: 1;
+      }
+
+      .card-info {
+        padding: 14px 16px;
+        border-top: 1px solid var(--border);
+      }
+
+      .card-title-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      .card-name {
+        color: white;
+        font-size: 13px;
+        font-weight: 700;
+        word-break: break-all;
+      }
+
+      .card-version {
+        display: inline-flex;
+        align-items: center;
+        min-height: 18px;
+        padding: 1px 6px;
+        border-radius: 999px;
+        background: rgba(108, 99, 255, 0.1);
+        color: var(--text-muted);
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .card-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .card-folder,
+      .card-anims,
+      .error-text {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .card-anims {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .error-icon {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
+      .error-text {
+        text-align: center;
+        padding: 0 16px;
+        line-height: 1.5;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        padding: 0;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+      }
+
+      .modal.open {
+        display: flex;
+      }
+
+      .modal-box {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+      }
+
+      .modal-header,
+      .modal-controls,
+      .export-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        padding: 16px 20px;
+        border-top: 1px solid var(--border);
+      }
+
+      .modal-header {
+        grid-column: 1 / -1;
+        justify-content: space-between;
+        border-top: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .modal-title {
+        font-weight: 800;
+      }
+
+      .modal-close {
+        width: 36px;
+        height: 36px;
+        display: inline-grid;
+        place-items: center;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--text-secondary);
+        cursor: pointer;
+      }
+
+      .modal-close:hover {
+        background: var(--accent-secondary);
+        color: white;
+      }
+
+      .modal-canvas-wrap {
+        grid-column: 1;
+        grid-row: 2 / span 2;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        background: #0a0a14;
+        border-right: 1px solid var(--border);
+      }
+
+      .modal-canvas-wrap canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+        touch-action: none;
+        cursor: grab;
+      }
+
+      .modal-canvas-wrap canvas.is-panning {
+        cursor: grabbing;
+      }
+
+      .modal-controls {
+        grid-column: 2;
+        grid-row: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        border-left: 1px solid var(--border);
+        border-top: 0;
+        overflow: auto;
+      }
+
+      .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .modal-controls label,
+      .export-row label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        font-weight: 700;
+      }
+
+      .modal-controls select {
+        width: 100%;
+        min-width: 0;
+        padding: 10px 12px;
+      }
+
+      .zoom-row {
+        display: grid;
+        grid-template-columns: auto 1fr auto auto auto;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .playback-row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .zoom-btn {
+        min-width: 42px;
+        height: 34px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg-card);
+        color: var(--text-primary);
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .zoom-btn:hover {
+        border-color: var(--accent);
+      }
+
+      #zoomRange,
+      #previewProgressRange {
+        width: 100%;
+      }
+
+      .zoom-value {
+        min-width: 48px;
+        text-align: right;
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+      .modal-controls input[type="number"],
+      .export-row input[type="number"] {
+        width: 90px;
+        padding: 8px 10px;
+        text-align: center;
+      }
+
+      .btn-export {
+        padding: 8px 14px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--success), #059669);
+        color: white;
+        font-weight: 800;
+      }
+
+      .btn-export:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .export-row {
+        grid-column: 2;
+        grid-row: 3;
+        border-left: 1px solid var(--border);
+        background: rgba(16, 185, 129, 0.03);
+      }
+      .export-progress {
+        margin-left: 0;
+        width: 100%;
+        color: var(--accent);
+      }
+
+      .empty {
+        grid-column: 1 / -1;
+        padding: 80px 20px;
+        text-align: center;
+      }
+
+      .empty-icon {
+        font-size: 64px;
+        opacity: 0.5;
+        margin-bottom: 20px;
+      }
+      .empty-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+      }
+      .empty-desc {
+        max-width: 460px;
+        margin: 0 auto;
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      #folderInput {
+        display: none;
+      }
+
+      .drop-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: none;
+        place-items: center;
+        background: rgba(4, 8, 24, 0.78);
+        border: 2px dashed rgba(108, 92, 231, 0.85);
+        color: #f5f7ff;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        pointer-events: none;
+        text-align: center;
+        padding: 24px;
+      }
+
+      .drop-overlay.open {
+        display: grid;
+      }
+
+      @media (max-width: 768px) {
+        .app {
+          padding: 16px 12px 42px;
+        }
+        .controls {
+          flex-direction: column;
+        }
+        .search-box {
+          width: 100%;
+          max-width: none;
+        }
+        .grid {
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+        .status {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .modal {
+          padding: 0;
+        }
+
+        .modal-box {
+          width: 100vw;
+          height: 100vh;
+          border-radius: 0;
+          grid-template-columns: 1fr;
+          grid-template-rows: auto minmax(0, 1fr) auto auto;
+        }
+
+        .modal-canvas-wrap {
+          grid-column: 1;
+          grid-row: 2;
+          border-right: 0;
+        }
+
+        .modal-controls {
+          grid-column: 1;
+          grid-row: 3;
+          border-left: 0;
+          border-top: 1px solid var(--border);
+          max-height: 34vh;
+        }
+
+        .export-row {
+          grid-column: 1;
+          grid-row: 4;
+          border-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="header">
+        <h1>Spine Preview Gallery</h1>
+      </div>
+
+      <div class="controls">
+        <input
+          type="file"
+          id="folderInput"
+          webkitdirectory
+          directory
+          multiple
+        />
+        <button class="btn btn-primary" type="button" id="pickFolderBtn">
+          Choose Folder(s)
+        </button>
+        <div class="search-box">
+          <span class="ico">Search</span>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by animation name..."
+            disabled
+          />
+        </div>
+        <label for="cardPreviewScaleSelect">Card Preview Zoom</label>
+        <select id="cardPreviewScaleSelect">
+          <option value="default" selected>Default</option>
+          <option value="2">2.0</option>
+          <option value="3">3.0</option>
+          <option value="4">4.0</option>
+          <option value="5">5.0</option>
+          <option value="6">6.0</option>
+          <option value="7">7.0</option>
+          <option value="8">8.0</option>
+          <option value="9">9.0</option>
+          <option value="10">10.0</option>
+        </select>
+        <button class="btn btn-secondary" type="button" id="btnClear" hidden>
+          Clear
+        </button>
+      </div>
+
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText"></div>
+      </div>
+
+      <div class="status" id="statusBar">
+        <span class="status-left"
+          >Showing <b id="statusCount">0</b> animations</span
+        >
+        <span class="status-right" id="statusFolder"></span>
+      </div>
+
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="drop-overlay" id="dropOverlay" aria-hidden="true">
+      Drop folders here to upload
+    </div>
+
+    <div class="modal" id="modal" aria-hidden="true">
+      <div
+        class="modal-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitle"
+      >
+        <div class="modal-header">
+          <span class="modal-title" id="modalTitle">Animation</span>
+          <button
+            class="modal-close"
+            id="modalClose"
+            type="button"
+            aria-label="Close"
+          >
+            x
+          </button>
+        </div>
+        <div class="modal-canvas-wrap"><canvas id="modalCanvas"></canvas></div>
+        <div class="modal-controls">
+          <div class="control-group">
+            <label for="modalAnimSelect">Animation</label>
+            <select id="modalAnimSelect"></select>
+          </div>
+          <div class="control-group">
+            <label for="previewProgressRange">Playback</label>
+            <div class="playback-row">
+              <button class="zoom-btn" id="playPauseBtn" type="button">Pause</button>
+              <input
+                id="previewProgressRange"
+                type="range"
+                min="0"
+                max="1"
+                step="1"
+                value="0"
+              />
+              <span class="zoom-value" id="previewTimeValue">Frame 1 / 1</span>
+            </div>
+          </div>
+          <div class="control-group">
+            <label for="previewFpsSelect">Preview FPS</label>
+            <select id="previewFpsSelect">
+              <option value="30">30 FPS</option>
+              <option value="60">60 FPS</option>
+              <option value="120" selected>120 FPS</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="zoomRange">Zoom</label>
+            <div class="zoom-row">
+              <button class="zoom-btn" id="zoomOutBtn" type="button">-</button>
+              <input
+                id="zoomRange"
+                type="range"
+                min="20"
+                max="300"
+                step="5"
+                value="100"
+              />
+              <button class="zoom-btn" id="zoomInBtn" type="button">+</button>
+              <button class="zoom-btn" id="zoomResetBtn" type="button">Fit</button>
+              <span class="zoom-value" id="zoomValue">100%</span>
+            </div>
+          </div>
+        </div>
+        <div class="export-row">
+          <label for="exportSize">Size</label>
+          <input
+            type="number"
+            id="exportSize"
+            value="256"
+            min="64"
+            max="2048"
+            step="64"
+          />
+          <label for="exportFps">FPS</label>
+          <input type="number" id="exportFps" value="24" min="1" max="60" />
+          <label for="exportCols">Columns</label>
+          <input type="number" id="exportCols" value="8" min="1" max="32" />
+          <button class="btn-export" id="btnExport" type="button">
+            Export Sprite Sheet
+          </button>
+          <span class="export-progress" id="exportProgress"></span>
+        </div>
+      </div>
+    </div>
+
+    <script src="skel34-decoder.js"></script>
+    <script>
+      (() => {
+        "use strict";
+
+        const RUNTIME_VERSIONS = [
+          "3_5",
+          "3_6",
+          "3_7",
+          "3_8",
+          "4_0",
+          "4_1",
+          "4_2",
+        ];
+        const loadedRuntimes = Object.create(null);
+        const loadingPromises = Object.create(null);
+        const previewStates = Object.create(null);
+        const skeletonStore = new Map();
+        const CUSTOM_RUNTIME_43_KEY = "4_3_custom";
+
+        let allEntries = [];
+        let modalState = null;
+        let selectedFiles = [];
+        let dragOverlayDepth = 0;
+        const activeCardPreviewIntervals = new Set();
+        const cardPreviewControllers = new Set();
+        let cardPreviewObserver = null;
+        let cardPreviewVisibilityRaf = 0;
+        const cardPreviewFrameCache = new Map();
+        const cardPreviewFramePromises = new Map();
+        const MODAL_ZOOM_MIN = 0.2;
+        const MODAL_ZOOM_MAX = 3;
+        const MODAL_ZOOM_STEP = 0.1;
+        const MODAL_DEFAULT_ZOOM = 0.9;
+        const MODAL_DEFAULT_PREVIEW_FPS = 60;
+        const CARD_PREVIEW_FRAME_COUNT = 12;
+        const CARD_PREVIEW_INTERVAL_MS = 80;
+        const CARD_PREVIEW_START_DELAY_MS = 2000;
+        const CARD_PREVIEW_CANVAS_SIZE = 256;
+        const CARD_PREVIEW_WEBP_QUALITY = 0.45;
+        const CARD_STATIC_WEBP_QUALITY = 0.6;
+        const CARD_PREVIEW_CAMERA_SCALE_DEFAULT = 1.0;
+        let cardPreviewCameraScale = CARD_PREVIEW_CAMERA_SCALE_DEFAULT;
+
+        const el = {
+          folderInput: document.getElementById("folderInput"),
+          pickFolderBtn: document.getElementById("pickFolderBtn"),
+          searchInput: document.getElementById("searchInput"),
+          dropOverlay: document.getElementById("dropOverlay"),
+          cardPreviewScaleSelect: document.getElementById(
+            "cardPreviewScaleSelect",
+          ),
+          btnClear: document.getElementById("btnClear"),
+          progressBar: document.getElementById("progressBar"),
+          progressFill: document.getElementById("progressFill"),
+          progressText: document.getElementById("progressText"),
+          statusBar: document.getElementById("statusBar"),
+          statusCount: document.getElementById("statusCount"),
+          statusFolder: document.getElementById("statusFolder"),
+          grid: document.getElementById("grid"),
+          howto: document.getElementById("howto"),
+          modal: document.getElementById("modal"),
+          modalTitle: document.getElementById("modalTitle"),
+          modalClose: document.getElementById("modalClose"),
+          modalCanvas: document.getElementById("modalCanvas"),
+          modalAnimSelect: document.getElementById("modalAnimSelect"),
+          playPauseBtn: document.getElementById("playPauseBtn"),
+          previewProgressRange: document.getElementById("previewProgressRange"),
+          previewTimeValue: document.getElementById("previewTimeValue"),
+          previewFpsSelect: document.getElementById("previewFpsSelect"),
+          zoomRange: document.getElementById("zoomRange"),
+          zoomOutBtn: document.getElementById("zoomOutBtn"),
+          zoomInBtn: document.getElementById("zoomInBtn"),
+          zoomResetBtn: document.getElementById("zoomResetBtn"),
+          zoomValue: document.getElementById("zoomValue"),
+          exportSize: document.getElementById("exportSize"),
+          exportFps: document.getElementById("exportFps"),
+          exportCols: document.getElementById("exportCols"),
+          btnExport: document.getElementById("btnExport"),
+          exportProgress: document.getElementById("exportProgress"),
+        };
+
+        function setText(node, text) {
+          if (!node) return;
+          node.textContent = String(text ?? "");
+        }
+
+        function sleep(ms) {
+          return new Promise((resolve) => setTimeout(resolve, ms));
+        }
+
+        function stopAllCardPreviewAnimations() {
+          for (const controller of cardPreviewControllers) {
+            controller.stop();
+          }
+          for (const timer of activeCardPreviewIntervals) clearInterval(timer);
+          activeCardPreviewIntervals.clear();
+        }
+
+        function resetCardPreviewControllers() {
+          if (cardPreviewVisibilityRaf) {
+            cancelAnimationFrame(cardPreviewVisibilityRaf);
+            cardPreviewVisibilityRaf = 0;
+          }
+          if (cardPreviewObserver) {
+            cardPreviewObserver.disconnect();
+            cardPreviewObserver = null;
+          }
+          cardPreviewControllers.clear();
+        }
+
+        function ensureCardPreviewObserver() {
+          if (cardPreviewObserver) return cardPreviewObserver;
+          if (typeof IntersectionObserver !== "function") {
+            cardPreviewObserver = {
+              observe(target) {
+                target?.__cardPreviewController?.setViewportActive(true);
+              },
+              disconnect() {},
+            };
+            return cardPreviewObserver;
+          }
+          cardPreviewObserver = new IntersectionObserver(
+            (entries) => {
+              for (const entry of entries) {
+                const controller = entry.target.__cardPreviewController;
+                if (!controller) continue;
+                controller.setViewportActive(entry.isIntersecting);
+              }
+            },
+            {
+              root: null,
+              rootMargin: "0px",
+              threshold: 0.01,
+            },
+          );
+          return cardPreviewObserver;
+        }
+
+        function isCardInViewport(card) {
+          if (!card || !card.isConnected) return false;
+          if (card.style.display === "none") return false;
+          const rect = card.getBoundingClientRect();
+          return (
+            rect.bottom > 0 &&
+            rect.right > 0 &&
+            rect.top < window.innerHeight &&
+            rect.left < window.innerWidth
+          );
+        }
+
+        function syncCardPreviewVisibility() {
+          cardPreviewVisibilityRaf = 0;
+          for (const controller of cardPreviewControllers) {
+            controller.setViewportActive(isCardInViewport(controller.card));
+          }
+        }
+
+        function scheduleCardPreviewVisibilitySync() {
+          if (cardPreviewVisibilityRaf) return;
+          cardPreviewVisibilityRaf = requestAnimationFrame(
+            syncCardPreviewVisibility,
+          );
+        }
+
+        function reconnectCardPreviewObserver() {
+          if (!cardPreviewObserver) return;
+          cardPreviewObserver.disconnect();
+          for (const controller of cardPreviewControllers) {
+            if (!controller.card?.isConnected) {
+              controller.setViewportActive(false);
+              continue;
+            }
+            if (controller.card.style.display === "none") {
+              controller.setViewportActive(false);
+              continue;
+            }
+            cardPreviewObserver.observe(controller.card);
+          }
+          scheduleCardPreviewVisibilitySync();
+        }
+
+        function clearCardPreviewFrameCache() {
+          cardPreviewFrameCache.clear();
+          cardPreviewFramePromises.clear();
+        }
+
+        async function getCardPreviewFramesByIndex(index) {
+          if (cardPreviewFrameCache.has(index)) {
+            return cardPreviewFrameCache.get(index);
+          }
+          if (cardPreviewFramePromises.has(index)) {
+            return cardPreviewFramePromises.get(index);
+          }
+
+          const stored = skeletonStore.get(index);
+          if (!stored) return [];
+
+          const promise = Promise.resolve()
+            .then(() => {
+              const preview = getPreviewState(stored.sp, stored.runtimeKey);
+              const {
+                skeletonData,
+                atlas,
+                glTexture,
+                usesPremultipliedAlpha,
+              } = createSkeletonData(
+                stored.skelData,
+                stored.atlasText,
+                stored.imageBundle,
+                preview.context,
+                stored.sp,
+                stored.isBinary,
+              );
+              try {
+                return renderCardPreviewFrames(
+                  stored.sp,
+                  stored.runtimeKey,
+                  skeletonData,
+                  usesPremultipliedAlpha,
+                );
+              } finally {
+                glTexture.dispose();
+                atlas.dispose();
+              }
+            })
+            .then((frames) => {
+              cardPreviewFrameCache.set(index, frames);
+              cardPreviewFramePromises.delete(index);
+              return frames;
+            })
+            .catch((error) => {
+              console.warn(`Card preview generation failed for ${stored.entry?.name || index}:`, error);
+              cardPreviewFramePromises.delete(index);
+              return [];
+            });
+
+          cardPreviewFramePromises.set(index, promise);
+          return promise;
+        }
+
+        function clamp(value, min, max) {
+          return Math.min(max, Math.max(min, value));
+        }
+
+        function getSelectedPreviewFps() {
+          const parsed = Number.parseInt(el.previewFpsSelect?.value || "", 10);
+          if (!Number.isFinite(parsed)) return MODAL_DEFAULT_PREVIEW_FPS;
+          return clamp(parsed, 1, 120);
+        }
+
+        function getSelectedCardPreviewScale() {
+          const raw = String(el.cardPreviewScaleSelect?.value || "default");
+          if (raw === "default") return CARD_PREVIEW_CAMERA_SCALE_DEFAULT;
+          const parsed = Number.parseFloat(raw);
+          if (!Number.isFinite(parsed)) return CARD_PREVIEW_CAMERA_SCALE_DEFAULT;
+          return clamp(parsed, 1, 10);
+        }
+
+        async function refreshCardPreviewImages() {
+          stopAllCardPreviewAnimations();
+          clearCardPreviewFrameCache();
+
+          for (const [index, stored] of skeletonStore.entries()) {
+            const card = el.grid.querySelector(`[data-preview-index="${index}"]`);
+            if (!card) continue;
+            const controller = card.__cardPreviewController;
+            const image = card.querySelector(".card-preview img");
+            if (!controller || !image) continue;
+
+            try {
+              const preview = getPreviewState(stored.sp, stored.runtimeKey);
+              const {
+                skeletonData,
+                atlas,
+                glTexture,
+                usesPremultipliedAlpha,
+              } = createSkeletonData(
+                stored.skelData,
+                stored.atlasText,
+                stored.imageBundle,
+                preview.context,
+                stored.sp,
+                stored.isBinary,
+              );
+              try {
+                const nextPreviewUrl = renderPreviewImage(
+                  stored.sp,
+                  stored.runtimeKey,
+                  skeletonData,
+                  usesPremultipliedAlpha,
+                );
+                controller.setStaticPreview(nextPreviewUrl);
+              } finally {
+                glTexture.dispose();
+                atlas.dispose();
+              }
+            } catch (error) {
+              console.warn(
+                `Card preview refresh failed for ${stored.entry?.name || index}:`,
+                error,
+              );
+            }
+
+            if (index % 2 === 0) await sleep(1);
+          }
+
+          reconnectCardPreviewObserver();
+        }
+
+        function syncModalZoomUi(zoom) {
+          const percent = Math.round(clamp(zoom, MODAL_ZOOM_MIN, MODAL_ZOOM_MAX) * 100);
+          if (el.zoomRange) el.zoomRange.value = String(percent);
+          setText(el.zoomValue, `${percent}%`);
+        }
+
+        function setModalZoom(value) {
+          const zoom = clamp(Number(value) || MODAL_DEFAULT_ZOOM, MODAL_ZOOM_MIN, MODAL_ZOOM_MAX);
+          if (modalState) modalState.zoom = zoom;
+          syncModalZoomUi(zoom);
+          return zoom;
+        }
+
+        function syncPlayPauseUi() {
+          const isPlaying = Boolean(modalState?.running && modalState?.playing);
+          setText(el.playPauseBtn, isPlaying ? "Pause" : "Play");
+        }
+
+        function syncPreviewProgressUi() {
+          const duration = Math.max(0.001, modalState?.animationDuration || 0);
+          const time = clamp(modalState?.trackTime || 0, 0, duration);
+          const fps = clamp(
+            modalState?.previewFps || MODAL_DEFAULT_PREVIEW_FPS,
+            1,
+            120,
+          );
+          const totalFrames = Math.max(1, Math.ceil(duration * fps));
+          const currentFrame = clamp(
+            Math.floor(time * fps),
+            0,
+            Math.max(0, totalFrames - 1),
+          );
+          if (el.previewProgressRange && !modalState?.isScrubbing) {
+            el.previewProgressRange.max = String(Math.max(1, totalFrames - 1));
+            el.previewProgressRange.value = String(currentFrame);
+          }
+          setText(
+            el.previewTimeValue,
+            `Frame ${currentFrame + 1} / ${totalFrames}`,
+          );
+        }
+
+        function setPreviewAnimation(name) {
+          if (!modalState?.running) return;
+          const animationName = String(name || "");
+          modalState.currentAnimationName = animationName;
+          const anim = modalState.skeletonData?.animations?.find(
+            (item) => item.name === animationName,
+          );
+          modalState.animationDuration = Math.max(anim?.duration || 0.001, 0.001);
+          modalState.trackTime = 0;
+
+          resetSkeletonToSetupPose(modalState.skeleton);
+          applyFallbackSkinForRuntime(
+            modalState.sp,
+            modalState.skeletonData,
+            modalState.skeleton,
+            modalState.stored.runtimeKey,
+          );
+          modalState.animState.setAnimation(0, animationName, true);
+          modalState.animState.update(0);
+          modalState.animState.apply(modalState.skeleton);
+          updateSkeletonWorld(modalState.sp, modalState.skeleton);
+          syncPreviewProgressUi();
+        }
+
+        function seekPreviewTo(seconds) {
+          if (!modalState?.running) return;
+          const duration = Math.max(0.001, modalState.animationDuration || 0.001);
+          const target = clamp(Number(seconds) || 0, 0, duration);
+          const wasPlaying = Boolean(modalState.playing);
+
+          modalState.playing = false;
+          modalState.trackTime = target;
+          resetSkeletonToSetupPose(modalState.skeleton);
+          applyFallbackSkinForRuntime(
+            modalState.sp,
+            modalState.skeletonData,
+            modalState.skeleton,
+            modalState.stored.runtimeKey,
+          );
+          modalState.animState.setAnimation(0, modalState.currentAnimationName, true);
+          modalState.animState.update(target);
+          modalState.animState.apply(modalState.skeleton);
+          updateSkeletonWorld(modalState.sp, modalState.skeleton);
+          modalState.playing = wasPlaying;
+
+          syncPlayPauseUi();
+          syncPreviewProgressUi();
+        }
+
+        function computeModalViewport(bounds, width, height, zoom) {
+          const safeWidth = Math.max(1, width);
+          const safeHeight = Math.max(1, height);
+          const aspect = safeWidth / safeHeight;
+          const viewH = (bounds.h * 1.3) / zoom;
+          const viewW = Math.max(viewH * aspect, (bounds.w * 1.3) / zoom);
+          return { viewW, viewH };
+        }
+
+        function resetSkeletonToSetupPose(skeleton) {
+          if (!skeleton) return;
+
+          if (typeof skeleton.setToSetupPose === "function") {
+            skeleton.setToSetupPose();
+            return;
+          }
+
+          if (typeof skeleton.setupPose === "function") {
+            skeleton.setupPose();
+            return;
+          }
+
+          if (typeof skeleton.setBonesToSetupPose === "function") {
+            skeleton.setBonesToSetupPose();
+          }
+          if (typeof skeleton.setSlotsToSetupPose === "function") {
+            skeleton.setSlotsToSetupPose();
+          }
+        }
+
+        function estimateSkinAttachmentCount(skin) {
+          if (!skin) return 0;
+          const attachments = skin.attachments;
+          if (attachments instanceof Map) return attachments.size;
+          if (Array.isArray(attachments)) return attachments.length;
+          if (attachments && typeof attachments === "object") {
+            try {
+              return Object.keys(attachments).length;
+            } catch {}
+          }
+          return 0;
+        }
+
+        function applyFallbackSkinForRuntime(sp, skeletonData, skeleton, runtimeKey) {
+          if (!skeleton || runtimeKey !== CUSTOM_RUNTIME_43_KEY) return;
+
+          const skins = Array.isArray(skeletonData?.skins)
+            ? skeletonData.skins.filter(Boolean)
+            : [];
+          if (skins.length === 0) return;
+
+          const bestSkin = skins
+            .map((skin) => ({
+              skin,
+              name: String(skin?.name || ""),
+              count: estimateSkinAttachmentCount(skin),
+            }))
+            .sort((a, b) => {
+              if (b.count !== a.count) return b.count - a.count;
+              const aIsDefault = a.name.toLowerCase() === "default";
+              const bIsDefault = b.name.toLowerCase() === "default";
+              if (aIsDefault !== bIsDefault) return aIsDefault ? 1 : -1;
+              return 0;
+            })[0]?.skin;
+          if (!bestSkin) return;
+
+          try {
+            if (typeof skeleton.setSkin === "function") {
+              skeleton.setSkin(bestSkin);
+            } else if (
+              typeof skeleton.setSkinByName === "function" &&
+              bestSkin.name
+            ) {
+              skeleton.setSkinByName(bestSkin.name);
+            }
+            if (typeof skeleton.setSlotsToSetupPose === "function") {
+              skeleton.setSlotsToSetupPose();
+            }
+          } catch (error) {
+            console.warn("Fallback skin selection failed:", error);
+          }
+        }
+
+        function updateSkeletonWorld(sp, skeleton) {
+          if (!skeleton || typeof skeleton.updateWorldTransform !== "function") return;
+          try {
+            const physicsMode = sp?.Physics?.update;
+            if (physicsMode !== undefined && physicsMode !== null) {
+              skeleton.updateWorldTransform(physicsMode);
+              return;
+            }
+            skeleton.updateWorldTransform(2);
+          } catch {
+            skeleton.updateWorldTransform();
+          }
+        }
+
+        function showEmptyState() {
+          el.grid.replaceChildren(createEmptyState());
+        }
+
+        function createEmptyState() {
+          const wrap = document.createElement("div");
+          wrap.className = "empty";
+
+          const icon = document.createElement("div");
+          icon.className = "empty-icon";
+          icon.textContent = "Preview";
+
+          const title = document.createElement("div");
+          title.className = "empty-title";
+          title.textContent = "No animations loaded";
+
+          const desc = document.createElement("div");
+          desc.className = "empty-desc";
+          desc.textContent =
+            'Click "Choose Folder" (repeat to add more) or drag folders into the window.';
+
+          wrap.append(icon, title, desc);
+          return wrap;
+        }
+
+        function versionToRuntimeKey(versionStr) {
+          if (!versionStr) return "3_5";
+
+          const parts = versionStr.split(".");
+          const major = Number.parseInt(parts[0], 10) || 3;
+          const minor = Number.parseInt(parts[1], 10) || 5;
+          const exactKey = `${major}_${minor}`;
+
+          if (RUNTIME_VERSIONS.includes(exactKey)) return exactKey;
+
+          const target = major * 100 + minor;
+          let best = RUNTIME_VERSIONS[0];
+
+          for (const key of RUNTIME_VERSIONS) {
+            const [kMajor, kMinor] = key.split("_").map(Number);
+            const value = kMajor * 100 + kMinor;
+            if (value <= target) best = key;
+          }
+
+          return best;
+        }
+
+        function parseSpineVersion(versionStr) {
+          const match = String(versionStr || "").match(/^(\d+)\.(\d+)\.(\d+)/);
+          if (!match) return null;
+          return {
+            major: Number.parseInt(match[1], 10),
+            minor: Number.parseInt(match[2], 10),
+            patch: Number.parseInt(match[3], 10),
+          };
+        }
+
+        function detectVersionFromPath(file) {
+          const rawPath = String(file?.webkitRelativePath || file?.name || "");
+          const match = rawPath.match(/(\d+\.\d+\.\d+(?:[-+][\w.]+)?)/);
+          return match ? match[1] : null;
+        }
+
+        function loadRuntime(key) {
+          if (loadedRuntimes[key]) return Promise.resolve(loadedRuntimes[key]);
+          if (loadingPromises[key]) return loadingPromises[key];
+
+          loadingPromises[key] = new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = `runtimes/spine-${key}.js`;
+            script.async = true;
+
+            script.onload = async () => {
+              const finishWithRuntime = () => {
+                const runtime = window[`spine_${key}`];
+                if (!runtime) {
+                  reject(
+                    new Error(
+                      `Runtime ${key} loaded but window.spine_${key} was not found`,
+                    ),
+                  );
+                  return;
+                }
+
+                if (runtime.webgl?.GLTexture) {
+                  runtime.webgl.GLTexture.DISABLE_UNPACK_PREMULTIPLIED_ALPHA_WEBGL = true;
+                }
+
+                loadedRuntimes[key] = runtime;
+                resolve(runtime);
+              };
+
+              if (window[`spine_${key}`]) {
+                finishWithRuntime();
+                return;
+              }
+
+              const loaders = window.__spineRuntimeLoaders;
+              const pendingLoader = loaders && loaders[key];
+              if (!pendingLoader) {
+                finishWithRuntime();
+                return;
+              }
+
+              try {
+                await pendingLoader;
+                finishWithRuntime();
+              } catch (error) {
+                reject(
+                  error instanceof Error
+                    ? error
+                    : new Error(String(error || "Runtime loader failed")),
+                );
+              }
+            };
+
+            script.onerror = () =>
+              reject(new Error(`Could not load runtime spine-${key}.js`));
+            document.head.appendChild(script);
+          });
+
+          return loadingPromises[key];
+        }
+
+        function getFileRelativePath(file) {
+          return String(
+            file?.relativePath ||
+              file?._relativePath ||
+              file?.webkitRelativePath ||
+              file?.name ||
+              "",
+          );
+        }
+
+        function getFileDedupKey(file) {
+          return `${getFileRelativePath(file)}::${file?.size || 0}::${file?.lastModified || 0}`;
+        }
+
+        function mergeSelectedFiles(nextFiles) {
+          const merged = new Map();
+          for (const file of selectedFiles) {
+            merged.set(getFileDedupKey(file), file);
+          }
+          for (const file of nextFiles) {
+            merged.set(getFileDedupKey(file), file);
+          }
+          return Array.from(merged.values());
+        }
+
+        function getFolderSummary(files) {
+          const roots = new Set();
+          for (const file of files) {
+            const path = getFileRelativePath(file);
+            if (!path) continue;
+            const root = path.includes("/") ? path.split("/")[0] : "root";
+            roots.add(root);
+          }
+          if (roots.size === 0) return "";
+          if (roots.size === 1) return `Folder: ${Array.from(roots)[0]}`;
+          return `Folders: ${roots.size} selected`;
+        }
+
+        function setDroppedRelativePath(file, path) {
+          const cleanPath = String(path || file?.name || "");
+          try {
+            Object.defineProperty(file, "relativePath", {
+              value: cleanPath,
+              configurable: true,
+            });
+          } catch {
+            try {
+              file.relativePath = cleanPath;
+            } catch {}
+          }
+        }
+
+        async function entryToFile(entry, parentPath) {
+          return new Promise((resolve, reject) => {
+            entry.file(
+              (file) => {
+                const rel = parentPath ? `${parentPath}/${file.name}` : file.name;
+                setDroppedRelativePath(file, rel);
+                resolve(file);
+              },
+              (err) => reject(err),
+            );
+          });
+        }
+
+        async function readDirectoryEntries(entry) {
+          const reader = entry.createReader();
+          const all = [];
+          while (true) {
+            const chunk = await new Promise((resolve, reject) =>
+              reader.readEntries(resolve, reject),
+            );
+            if (!chunk.length) break;
+            all.push(...chunk);
+          }
+          return all;
+        }
+
+        async function collectFilesFromEntry(entry, parentPath = "") {
+          if (!entry) return [];
+          if (entry.isFile) {
+            const file = await entryToFile(entry, parentPath);
+            return [file];
+          }
+          if (!entry.isDirectory) return [];
+          const nextPath = parentPath ? `${parentPath}/${entry.name}` : entry.name;
+          const children = await readDirectoryEntries(entry);
+          const nested = await Promise.all(
+            children.map((child) => collectFilesFromEntry(child, nextPath)),
+          );
+          return nested.flat();
+        }
+
+        async function collectDroppedFiles(dataTransfer) {
+          const items = Array.from(dataTransfer?.items || []);
+          const entries = items
+            .map((item) =>
+              typeof item?.webkitGetAsEntry === "function"
+                ? item.webkitGetAsEntry()
+                : null,
+            )
+            .filter(Boolean);
+
+          if (entries.length > 0) {
+            const nested = await Promise.all(
+              entries.map((entry) => collectFilesFromEntry(entry, "")),
+            );
+            return nested.flat();
+          }
+
+          const files = Array.from(dataTransfer?.files || []);
+          for (const file of files) {
+            if (!getFileRelativePath(file)) setDroppedRelativePath(file, file.name);
+          }
+          return files;
+        }
+
+        function showDropOverlay() {
+          el.dropOverlay?.classList.add("open");
+          el.dropOverlay?.setAttribute("aria-hidden", "false");
+        }
+
+        function hideDropOverlay() {
+          el.dropOverlay?.classList.remove("open");
+          el.dropOverlay?.setAttribute("aria-hidden", "true");
+        }
+
+        function isFileDrag(event) {
+          return Array.from(event?.dataTransfer?.types || []).includes("Files");
+        }
+
+        function findRuntime43ModuleFile(entry) {
+          const moduleFiles = selectedFiles.filter((file) =>
+            /\.mjs$/i.test(file.name) && /spine-webcomponents/i.test(file.name),
+          );
+          if (moduleFiles.length === 0) return null;
+
+          const entryPath = getFileRelativePath(entry.skelFile || entry.jsonFile);
+          const entryDir = entryPath.split("/").slice(0, -1);
+          let bestFile = moduleFiles[0];
+          let bestScore = -1;
+
+          for (const file of moduleFiles) {
+            const fileDir = getFileRelativePath(file).split("/").slice(0, -1);
+            let common = 0;
+            const limit = Math.min(entryDir.length, fileDir.length);
+            while (common < limit && entryDir[common] === fileDir[common]) common += 1;
+
+            const score = common * 1000 - fileDir.length;
+            if (score > bestScore) {
+              bestScore = score;
+              bestFile = file;
+            }
+          }
+
+          return bestFile;
+        }
+
+        async function loadRuntimeFromModuleFile(file, key = CUSTOM_RUNTIME_43_KEY) {
+          if (loadedRuntimes[key]) return loadedRuntimes[key];
+          if (loadingPromises[key]) return loadingPromises[key];
+
+          loadingPromises[key] = (async () => {
+            const source = await readText(file);
+            const blobUrl = URL.createObjectURL(
+              new Blob([source], { type: "text/javascript" }),
+            );
+            try {
+              const moduleNs = await import(blobUrl);
+              const runtime = Object.assign(Object.create(null), moduleNs);
+              if (
+                !runtime.webgl &&
+                runtime.ManagedWebGLRenderingContext &&
+                runtime.SceneRenderer &&
+                runtime.GLTexture
+              ) {
+                runtime.webgl = {
+                  ManagedWebGLRenderingContext: runtime.ManagedWebGLRenderingContext,
+                  SceneRenderer: runtime.SceneRenderer,
+                  GLTexture: runtime.GLTexture,
+                };
+              }
+
+              const required = [
+                "TextureAtlas",
+                "AtlasAttachmentLoader",
+                "SkeletonBinary",
+                "SkeletonJson",
+                "Skeleton",
+                "Vector2",
+                "AnimationStateData",
+                "AnimationState",
+                "webgl",
+              ];
+              for (const field of required) {
+                if (!runtime[field]) {
+                  throw new Error(`Runtime module is missing "${field}" export.`);
+                }
+              }
+
+              if (runtime.webgl?.GLTexture) {
+                runtime.webgl.GLTexture.DISABLE_UNPACK_PREMULTIPLIED_ALPHA_WEBGL = true;
+              }
+
+              window[`spine_${key}`] = runtime;
+              loadedRuntimes[key] = runtime;
+              return runtime;
+            } finally {
+              URL.revokeObjectURL(blobUrl);
+            }
+          })();
+
+          return loadingPromises[key];
+        }
+
+        function detectVersionFromJson(jsonText) {
+          try {
+            const data = JSON.parse(jsonText);
+            return data?.skeleton?.spine ?? null;
+          } catch {
+            return null;
+          }
+        }
+
+        function detectVersionFromSkel(arrayBuffer) {
+          const bytes = new Uint8Array(arrayBuffer);
+          if (bytes.length < 10) return null;
+
+          try {
+            const hashLenRaw = bytes[0];
+            if (hashLenRaw > 0) {
+              const hashLen = hashLenRaw - 1;
+              const verPos = 1 + hashLen;
+              if (verPos < bytes.length) {
+                const verLenRaw = bytes[verPos];
+                if (verLenRaw > 0) {
+                  const verLen = verLenRaw - 1;
+                  const isValidLength =
+                    verLen > 0 && verLen <= 20 && verPos + 1 + verLen <= bytes.length;
+                  if (isValidLength) {
+                    const verBytes = bytes.slice(verPos + 1, verPos + 1 + verLen);
+                    const version = String.fromCharCode(...verBytes);
+                    if (/^\d+\.\d+\.\d+(?:[-+][\w.]+)?$/.test(version))
+                      return version;
+                  }
+                }
+              }
+            }
+          } catch {}
+
+          const scan = [];
+          for (let i = 0; i < Math.min(bytes.length, 65536); i += 1) {
+            const value = bytes[i];
+            scan.push(
+              value >= 0x20 && value < 0x7f ? String.fromCharCode(value) : " ",
+            );
+          }
+          const match = scan
+            .join("")
+            .match(/(\d+\.\d+\.\d+(?:[-+][\w.]+)?)/);
+          return match ? match[1] : null;
+        }
+
+        function readText(file) {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result ?? ""));
+            reader.onerror = () =>
+              reject(
+                  reader.error || new Error("Could not read text file"),
+              );
+            reader.readAsText(file);
+          });
+        }
+
+        function readArrayBuffer(file) {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () =>
+              reject(
+                  reader.error || new Error("Could not read binary file"),
+              );
+            reader.readAsArrayBuffer(file);
+          });
+        }
+
+        function readDataURL(file) {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result ?? ""));
+            reader.onerror = () =>
+              reject(
+                  reader.error || new Error("Could not read image file"),
+              );
+            reader.readAsDataURL(file);
+          });
+        }
+
+        function loadImage(src) {
+          return new Promise((resolve, reject) => {
+            const image = new Image();
+            image.onload = () => resolve(image);
+            image.onerror = () => reject(new Error("Image load failed"));
+            image.src = src;
+          });
+        }
+
+        function createSceneRenderer(
+          sp,
+          canvas,
+          preserveDrawingBuffer = false,
+          alphaBackground = false,
+        ) {
+          const config = {
+            alpha: Boolean(alphaBackground),
+            preserveDrawingBuffer: Boolean(preserveDrawingBuffer),
+            premultipliedAlpha: false,
+          };
+          const context = new sp.webgl.ManagedWebGLRenderingContext(
+            canvas,
+            config,
+          );
+          const sceneRenderer = new sp.webgl.SceneRenderer(canvas, context);
+          return { context, sceneRenderer, gl: context.gl };
+        }
+
+        function disposeRenderer(context) {
+          try {
+            const gl = context?.gl;
+            if (!gl) return;
+            gl.clearColor(0, 0, 0, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+          } catch {}
+        }
+
+        function setupCamera(sceneRenderer, cx, cy, worldW, worldH) {
+          const cam = sceneRenderer.camera;
+          cam.position.x = cx;
+          cam.position.y = cy;
+          cam.up.y = 1;
+          cam.direction.z = -1;
+          cam.near = 0;
+          cam.far = 2;
+          cam.viewportWidth = worldW;
+          cam.viewportHeight = worldH;
+          cam.update();
+        }
+
+        function renderSkeleton(
+          sceneRenderer,
+          gl,
+          skeleton,
+          canvasW,
+          canvasH,
+          transparent = false,
+          premultipliedAlpha = false,
+        ) {
+          gl.viewport(0, 0, canvasW, canvasH);
+          if (transparent) {
+            gl.clearColor(0, 0, 0, 0);
+          } else {
+            gl.clearColor(0.039, 0.039, 0.078, 1);
+          }
+          gl.clear(gl.COLOR_BUFFER_BIT);
+          sceneRenderer.begin();
+          sceneRenderer.drawSkeleton(skeleton, premultipliedAlpha);
+          sceneRenderer.end();
+        }
+
+        async function loadSpineFiles(entry) {
+          const isBinary = Boolean(entry.skelFile);
+          const skelPromise = isBinary
+            ? readArrayBuffer(entry.skelFile)
+            : readText(entry.jsonFile);
+          const [skelData, atlasText] = await Promise.all([
+            skelPromise,
+            readText(entry.atlasFile),
+          ]);
+          const pngFiles =
+            entry.pngFiles && entry.pngFiles.length > 0
+              ? entry.pngFiles
+              : entry.pngFile
+                ? [entry.pngFile]
+                : [];
+          if (pngFiles.length === 0) {
+            throw new Error("No PNG texture files found for this atlas.");
+          }
+
+          const imageEntries = await Promise.all(
+            pngFiles.map(async (file) => {
+              const dataUrl = await readDataURL(file);
+              const image = await loadImage(dataUrl);
+              return { file, image };
+            }),
+          );
+          const imageMap = new Map();
+          for (const item of imageEntries) {
+            imageMap.set(item.file.name.toLowerCase(), item.image);
+          }
+          const imageBundle = {
+            defaultImage: imageEntries[0].image,
+            imagesByName: imageMap,
+          };
+
+          const version =
+            (isBinary ? detectVersionFromSkel(skelData) : detectVersionFromJson(skelData)) ||
+            detectVersionFromPath(entry.skelFile || entry.jsonFile);
+          let runtimeKey = versionToRuntimeKey(version);
+          const parsedVersion = parseSpineVersion(version);
+          const is43Binary =
+            isBinary &&
+            parsedVersion &&
+            parsedVersion.major === 4 &&
+            parsedVersion.minor >= 3;
+
+          if (is43Binary) {
+            const runtimeModuleFile = findRuntime43ModuleFile(entry);
+            if (runtimeModuleFile) {
+              try {
+                runtimeKey = CUSTOM_RUNTIME_43_KEY;
+                const sp = await loadRuntimeFromModuleFile(runtimeModuleFile, runtimeKey);
+                return {
+                  skelData,
+                  atlasText,
+                  imageBundle,
+                  sp,
+                  isBinary,
+                  version,
+                  runtimeKey,
+                };
+              } catch (error) {
+                console.warn("Spine 4.3 runtime bridge failed:", error);
+              }
+            }
+
+            throw new Error(
+              `Binary SKEL ${version} needs a 4.3 web runtime. Include spine-webcomponents.min.mjs in the selected folder (or export JSON / re-export SKEL to 4.2).`,
+            );
+          }
+
+          const isUnsupportedBinaryVersion =
+            isBinary &&
+            parsedVersion &&
+            parsedVersion.major > 4;
+          if (isUnsupportedBinaryVersion) {
+            throw new Error(
+              `Binary SKEL ${version} is newer than supported runtimes. Export JSON (same version) or re-export to a supported SKEL version.`,
+            );
+          }
+          const hasModernAtlasSyntax = /(^|\n)\s*(pma|bounds)\s*:/i.test(
+            atlasText,
+          );
+
+          // Modern atlas syntax (pma/bounds) is not compatible with 3.x atlas parser.
+          // Force a 4.x runtime to avoid legacy parser crashes.
+          if (
+            isBinary &&
+            hasModernAtlasSyntax &&
+            ["3_5", "3_6", "3_7", "3_8"].includes(runtimeKey)
+          ) {
+            runtimeKey = "4_2";
+          }
+
+          if (
+            isBinary &&
+            typeof window.needsSkelDecoding === "function" &&
+            window.needsSkelDecoding(skelData)
+          ) {
+            try {
+              const decodedJson = window.decodeSkel34(skelData);
+              runtimeKey = "3_5";
+              const sp = await loadRuntime(runtimeKey);
+              return {
+                skelData: decodedJson,
+                atlasText,
+                imageBundle,
+                sp,
+                isBinary: false,
+                version,
+                runtimeKey,
+              };
+            } catch (error) {
+              console.warn("Decode skel 3.4/3.5 failed:", error);
+            }
+          }
+
+          const sp = await loadRuntime(runtimeKey);
+          return {
+            skelData,
+            atlasText,
+            imageBundle,
+            sp,
+            isBinary,
+            version,
+            runtimeKey,
+          };
+        }
+
+        function createSkeletonData(
+          skelData,
+          atlasText,
+          imageBundle,
+          glContext,
+          sp,
+          isBinary,
+        ) {
+          function normalizeLegacyAtlasText(input) {
+            const lines = String(input || "").split(/\r\n|\r|\n/);
+            const out = [];
+            let i = 0;
+
+            while (i < lines.length) {
+              const line = lines[i];
+              const trimmed = line.trim();
+
+              if (!trimmed) {
+                out.push("");
+                i += 1;
+                continue;
+              }
+
+              const isPageStart =
+                !trimmed.includes(":") &&
+                (i === 0 || !lines[i - 1].trim());
+              if (!isPageStart) {
+                out.push(line);
+                i += 1;
+                continue;
+              }
+
+              const pageName = trimmed;
+              i += 1;
+
+              const header = Object.create(null);
+              while (i < lines.length) {
+                const headerLine = lines[i].trim();
+                if (!headerLine || !headerLine.includes(":")) break;
+                const colon = headerLine.indexOf(":");
+                const key = headerLine.slice(0, colon).trim().toLowerCase();
+                const value = headerLine.slice(colon + 1).trim();
+                header[key] = value;
+                i += 1;
+              }
+
+              out.push(pageName);
+              if (header.size) out.push(`size: ${header.size}`);
+              out.push("format: RGBA8888");
+
+              const filterValue = String(header.filter || "").toLowerCase();
+              const isBoolFilter =
+                filterValue === "true" ||
+                filterValue === "false" ||
+                filterValue === "true,true" ||
+                filterValue === "false,false";
+              out.push(
+                isBoolFilter || !header.filter
+                  ? "filter: Linear,Linear"
+                  : `filter: ${header.filter}`,
+              );
+
+              let repeatValue = header.repeat;
+              if (!repeatValue && header.pma) repeatValue = "none";
+              if (/^(true|false)$/i.test(String(repeatValue || ""))) {
+                repeatValue = "none";
+              }
+              out.push(`repeat: ${repeatValue || "none"}`);
+            }
+
+            return out.join("\n");
+          }
+
+          const textureInstances = [];
+          const getImageByAtlasPage = (path) => {
+            const key = String(path || "")
+              .replace(/^.*[\\/]/, "")
+              .trim()
+              .toLowerCase();
+            const candidates = key ? [key] : [];
+            if (key && !/\.[a-z0-9]+$/i.test(key)) candidates.push(`${key}.png`);
+            for (const candidate of candidates) {
+              const image = imageBundle?.imagesByName?.get?.(candidate);
+              if (image) return image;
+            }
+            return imageBundle?.imagesByName?.values?.().next?.().value || imageBundle?.defaultImage || null;
+          };
+          const getTextureForPage = (path) => {
+            const image = getImageByAtlasPage(path);
+            if (!image) return null;
+            const texture = new sp.webgl.GLTexture(glContext, image);
+            textureInstances.push(texture);
+            return texture;
+          };
+          const bindAtlasPageTextures = () => {
+            const pages = atlas?.pages;
+            if (!Array.isArray(pages) || pages.length === 0) return;
+            for (const page of pages) {
+              if (!page || page.texture) continue;
+              const pageName = String(page.name || "").trim();
+              const image = getImageByAtlasPage(pageName);
+              if (!image) {
+                throw new Error(
+                  `Atlas page image not found: ${pageName || "(unnamed page)"}`,
+                );
+              }
+              const texture = new sp.webgl.GLTexture(glContext, image);
+              textureInstances.push(texture);
+              if (typeof page.setTexture === "function") {
+                page.setTexture(texture);
+              } else {
+                page.texture = texture;
+              }
+            }
+          };
+          let atlas = null;
+
+          try {
+            const cleanedAtlas = atlasText.replace(/^\s+/, "");
+            try {
+              atlas = new sp.TextureAtlas(cleanedAtlas, getTextureForPage);
+            } catch (error) {
+              const message =
+                error instanceof Error ? error.message : String(error || "");
+              const canRetry =
+                /Unknown texture filter/i.test(message) ||
+                /Unknown texture wrap/i.test(message);
+              if (!canRetry) throw error;
+              atlas = new sp.TextureAtlas(
+                normalizeLegacyAtlasText(cleanedAtlas),
+                getTextureForPage,
+              );
+            }
+            bindAtlasPageTextures();
+
+            const atlasLoader = new sp.AtlasAttachmentLoader(atlas);
+            let skeletonData;
+            if (isBinary) {
+              const skeletonBinary = new sp.SkeletonBinary(atlasLoader);
+              skeletonData = skeletonBinary.readSkeletonData(
+                new Uint8Array(skelData),
+              );
+            } else {
+              const skeletonJson = new sp.SkeletonJson(atlasLoader);
+              const jsonData =
+                typeof skelData === "string" ? JSON.parse(skelData) : skelData;
+              skeletonData = skeletonJson.readSkeletonData(jsonData);
+            }
+            const atlasUsesPma =
+              Array.isArray(atlas?.pages) &&
+              atlas.pages.some((page) => Boolean(page?.pma));
+            const usesPremultipliedAlpha =
+              atlasUsesPma || /(^|\n)\s*pma\s*:\s*true\b/i.test(atlasText);
+
+            return {
+              skeletonData,
+              atlas,
+              usesPremultipliedAlpha,
+              glTexture: {
+                dispose: () => {
+                  for (const tex of textureInstances) tex?.dispose?.();
+                },
+              },
+            };
+          } catch (error) {
+            try {
+              atlas?.dispose?.();
+            } catch {}
+            try {
+              for (const tex of textureInstances) tex?.dispose?.();
+            } catch {}
+            throw error;
+          }
+        }
+
+        async function createSkeletonDataWithRuntimeFallback(
+          skelData,
+          atlasText,
+          image,
+          preferredSp,
+          preferredRuntimeKey,
+          isBinary,
+          version,
+        ) {
+          const candidateKeys = isBinary
+            ? [
+                preferredRuntimeKey,
+                "4_2",
+                "4_1",
+                "4_0",
+                "3_8",
+                "3_7",
+                "3_6",
+                "3_5",
+              ]
+            : [preferredRuntimeKey];
+          const uniqueKeys = [...new Set(candidateKeys.filter(Boolean))];
+          const errors = [];
+
+          for (const key of uniqueKeys) {
+            const sp = key === preferredRuntimeKey ? preferredSp : await loadRuntime(key);
+            const preview = getPreviewState(sp, key);
+            try {
+              const created = createSkeletonData(
+                skelData,
+                atlasText,
+                image,
+                preview.context,
+                sp,
+                isBinary,
+              );
+              return { ...created, sp, runtimeKey: key };
+            } catch (error) {
+              const message =
+                error instanceof Error ? error.message : String(error || "Unknown");
+              errors.push(`[${key}] ${message}`);
+            }
+          }
+
+          throw new Error(
+            `No compatible runtime for ${version || "unknown version"} (${isBinary ? "SKEL" : "JSON"}). ${errors.join(" | ")}`,
+          );
+        }
+
+        function getSkeletonBounds(sp, skeletonData, runtimeKey) {
+          const skeleton = new sp.Skeleton(skeletonData);
+          resetSkeletonToSetupPose(skeleton);
+          applyFallbackSkinForRuntime(sp, skeletonData, skeleton, runtimeKey);
+          updateSkeletonWorld(sp, skeleton);
+
+          const offset = new sp.Vector2();
+          const size = new sp.Vector2();
+          skeleton.getBounds(offset, size, []);
+
+          const valid =
+            Number.isFinite(offset.x) &&
+            Number.isFinite(offset.y) &&
+            Number.isFinite(size.x) &&
+            Number.isFinite(size.y) &&
+            size.x > 1 &&
+            size.y > 1;
+          if (valid) {
+            const width = size.x;
+            const height = size.y;
+            return {
+              cx: offset.x + width / 2,
+              cy: offset.y + height / 2,
+              w: width,
+              h: height,
+            };
+          }
+
+          const fallbackW = skeletonData.width || 200;
+          const fallbackH = skeletonData.height || 400;
+          return { cx: 0, cy: fallbackH / 2, w: fallbackW, h: fallbackH };
+        }
+
+        function getPreviewState(sp, runtimeKey) {
+          if (previewStates[runtimeKey]) return previewStates[runtimeKey];
+          const canvas = document.createElement("canvas");
+          canvas.width = CARD_PREVIEW_CANVAS_SIZE;
+          canvas.height = CARD_PREVIEW_CANVAS_SIZE;
+          const renderer = createSceneRenderer(sp, canvas, true);
+          previewStates[runtimeKey] = { canvas, ...renderer, sp };
+          return previewStates[runtimeKey];
+        }
+
+        function renderPreviewImage(
+          sp,
+          runtimeKey,
+          skeletonData,
+          usesPremultipliedAlpha = false,
+        ) {
+          const preview = getPreviewState(sp, runtimeKey);
+          const bounds = getSkeletonBounds(sp, skeletonData, runtimeKey);
+
+          const skeleton = new sp.Skeleton(skeletonData);
+          resetSkeletonToSetupPose(skeleton);
+          applyFallbackSkinForRuntime(sp, skeletonData, skeleton, runtimeKey);
+
+          if (
+            Array.isArray(skeletonData.animations) &&
+            skeletonData.animations.length > 0
+          ) {
+            const stateData = new sp.AnimationStateData(skeletonData);
+            const state = new sp.AnimationState(stateData);
+            state.setAnimation(0, skeletonData.animations[0].name, false);
+            state.update(0.3);
+            state.apply(skeleton);
+          }
+
+          updateSkeletonWorld(sp, skeleton);
+          setupCamera(
+            preview.sceneRenderer,
+            bounds.cx,
+            bounds.cy,
+            bounds.w * cardPreviewCameraScale,
+            bounds.h * cardPreviewCameraScale,
+          );
+          renderSkeleton(
+            preview.sceneRenderer,
+            preview.gl,
+            skeleton,
+            preview.canvas.width,
+            preview.canvas.height,
+            false,
+            usesPremultipliedAlpha,
+          );
+          return preview.canvas.toDataURL("image/webp", CARD_STATIC_WEBP_QUALITY);
+        }
+
+        function renderCardPreviewFrames(
+          sp,
+          runtimeKey,
+          skeletonData,
+          usesPremultipliedAlpha = false,
+        ) {
+          const animations = Array.isArray(skeletonData.animations)
+            ? skeletonData.animations
+            : [];
+          if (animations.length === 0) {
+            return [
+              renderPreviewImage(
+                sp,
+                runtimeKey,
+                skeletonData,
+                usesPremultipliedAlpha,
+              ),
+            ];
+          }
+
+          const preview = getPreviewState(sp, runtimeKey);
+          const bounds = getSkeletonBounds(sp, skeletonData, runtimeKey);
+          const skeleton = new sp.Skeleton(skeletonData);
+          resetSkeletonToSetupPose(skeleton);
+          applyFallbackSkinForRuntime(sp, skeletonData, skeleton, runtimeKey);
+
+          const firstAnimation = animations[0];
+          const duration = Math.max(firstAnimation?.duration || 0.001, 0.001);
+          const frameDt = duration / CARD_PREVIEW_FRAME_COUNT;
+          const stateData = new sp.AnimationStateData(skeletonData);
+          const state = new sp.AnimationState(stateData);
+          state.setAnimation(0, firstAnimation.name, true);
+
+          const frames = [];
+          for (let i = 0; i < CARD_PREVIEW_FRAME_COUNT; i += 1) {
+            if (i > 0) state.update(frameDt);
+            state.apply(skeleton);
+            updateSkeletonWorld(sp, skeleton);
+
+            setupCamera(
+              preview.sceneRenderer,
+              bounds.cx,
+              bounds.cy,
+              bounds.w * cardPreviewCameraScale,
+              bounds.h * cardPreviewCameraScale,
+            );
+            renderSkeleton(
+              preview.sceneRenderer,
+              preview.gl,
+              skeleton,
+              preview.canvas.width,
+              preview.canvas.height,
+              false,
+              usesPremultipliedAlpha,
+            );
+            frames.push(
+              preview.canvas.toDataURL("image/webp", CARD_PREVIEW_WEBP_QUALITY),
+            );
+          }
+
+          return frames.length > 0
+            ? frames
+            : [
+                renderPreviewImage(
+                  sp,
+                  runtimeKey,
+                  skeletonData,
+                  usesPremultipliedAlpha,
+                ),
+              ];
+        }
+
+        function escapeNameForSearch(value) {
+          return String(value || "").toLowerCase();
+        }
+
+        function createCard(
+          entry,
+          previewUrl,
+          animNames,
+          version,
+          isBinary,
+          index,
+        ) {
+          const card = document.createElement("button");
+          card.type = "button";
+          card.className = "card";
+          card.style.animationDelay = `${Math.min(index * 0.03, 1)}s`;
+          card.dataset.name = escapeNameForSearch(entry.name);
+          card.dataset.previewIndex = String(index);
+
+          const preview = document.createElement("div");
+          preview.className = "card-preview";
+
+          const image = document.createElement("img");
+          image.src = previewUrl;
+          image.alt = entry.name;
+
+          const play = document.createElement("div");
+          play.className = "card-play";
+
+          const badge = document.createElement("div");
+          badge.className = "card-badge";
+          badge.textContent = `${animNames.length} anims`;
+
+          preview.append(image, play, badge);
+
+          const info = document.createElement("div");
+          info.className = "card-info";
+
+          const titleRow = document.createElement("div");
+          titleRow.className = "card-title-row";
+
+          const name = document.createElement("div");
+          name.className = "card-name";
+          name.textContent = entry.name;
+          titleRow.appendChild(name);
+
+          if (version) {
+            const tag = document.createElement("span");
+            tag.className = "card-version";
+            tag.textContent = `${version}${isBinary ? " - SKEL" : ""}`;
+            titleRow.appendChild(tag);
+          }
+
+          const meta = document.createElement("div");
+          meta.className = "card-meta";
+
+          const folder = document.createElement("span");
+          folder.className = "card-folder";
+          folder.textContent = `Folder: ${entry.folder}`;
+
+          const animCount = document.createElement("span");
+          animCount.className = "card-anims";
+          animCount.textContent = `${animNames.length} anims`;
+
+          meta.append(folder, animCount);
+          info.append(titleRow, meta);
+          card.append(preview, info);
+
+          let frames = [previewUrl];
+          let frameIndex = 0;
+          let timer = null;
+          let startDelayTimer = null;
+          let isVisibleInViewport = false;
+
+          const stopPreview = () => {
+            if (startDelayTimer !== null) {
+              clearTimeout(startDelayTimer);
+              startDelayTimer = null;
+            }
+            if (timer !== null) {
+              clearInterval(timer);
+              activeCardPreviewIntervals.delete(timer);
+              timer = null;
+            }
+            frameIndex = 0;
+            image.src = frames[0] || previewUrl;
+          };
+          const startPreviewWithFrames = (nextFrames) => {
+            if (!Array.isArray(nextFrames) || nextFrames.length <= 1) return;
+            frames = nextFrames;
+            if (timer !== null) return;
+            timer = setInterval(() => {
+              frameIndex = (frameIndex + 1) % frames.length;
+              image.src = frames[frameIndex];
+            }, CARD_PREVIEW_INTERVAL_MS);
+            activeCardPreviewIntervals.add(timer);
+          };
+          const startPreview = async () => {
+            if (!isVisibleInViewport) return;
+            if (frames.length > 1) {
+              startPreviewWithFrames(frames);
+              return;
+            }
+
+            const generated = await getCardPreviewFramesByIndex(index);
+            if (!isVisibleInViewport) return;
+            startPreviewWithFrames(generated);
+          };
+          const scheduleStartPreview = () => {
+            if (!isVisibleInViewport) return;
+            if (startDelayTimer !== null || timer !== null) return;
+            startDelayTimer = setTimeout(() => {
+              startDelayTimer = null;
+              startPreview();
+            }, CARD_PREVIEW_START_DELAY_MS);
+          };
+
+          const controller = {
+            card,
+            stop: stopPreview,
+            setStaticPreview(nextPreviewUrl) {
+              if (typeof nextPreviewUrl !== "string" || !nextPreviewUrl) return;
+              frames = [nextPreviewUrl];
+              frameIndex = 0;
+              image.src = nextPreviewUrl;
+            },
+            setViewportActive(isActive) {
+              if (isVisibleInViewport === isActive) return;
+              isVisibleInViewport = isActive;
+              if (isVisibleInViewport) {
+                scheduleStartPreview();
+                return;
+              }
+              stopPreview();
+            },
+          };
+          card.__cardPreviewController = controller;
+          cardPreviewControllers.add(controller);
+          ensureCardPreviewObserver().observe(card);
+          scheduleCardPreviewVisibilitySync();
+
+          card.addEventListener("click", () => openModal(index, animNames));
+          return card;
+        }
+
+        function createErrorCard(entry, message, index) {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.style.animationDelay = `${Math.min(index * 0.03, 1)}s`;
+          card.dataset.name = escapeNameForSearch(entry.name);
+
+          const preview = document.createElement("div");
+          preview.className = "card-preview";
+          preview.style.flexDirection = "column";
+          preview.style.color = "var(--accent-secondary)";
+
+          const icon = document.createElement("div");
+          icon.className = "error-icon";
+          icon.textContent = "Error";
+
+          const errorText = document.createElement("div");
+          errorText.className = "error-text";
+          errorText.textContent = message;
+
+          preview.append(icon, errorText);
+
+          const info = document.createElement("div");
+          info.className = "card-info";
+
+          const name = document.createElement("div");
+          name.className = "card-name";
+          name.textContent = entry.name;
+
+          const meta = document.createElement("div");
+          meta.className = "card-meta";
+
+          const folder = document.createElement("span");
+          folder.className = "card-folder";
+          folder.textContent = `Folder: ${entry.folder}`;
+
+          const errorBadge = document.createElement("span");
+          errorBadge.className = "card-anims";
+          errorBadge.style.color = "var(--accent-secondary)";
+          errorBadge.textContent = "Error";
+
+          meta.append(folder, errorBadge);
+          info.append(name, meta);
+          card.append(preview, info);
+          return card;
+        }
+
+        function groupSpineEntries(files) {
+          const folderMap = new Map();
+
+          for (const file of files) {
+            const relativePath = getFileRelativePath(file);
+            const dir = relativePath.includes("/")
+              ? relativePath.split("/").slice(0, -1).join("/")
+              : "root";
+            if (!folderMap.has(dir)) folderMap.set(dir, []);
+            folderMap.get(dir).push(file);
+          }
+
+          const entries = [];
+
+          for (const [dir, folderFiles] of folderMap.entries()) {
+            const folderName = dir.split("/").pop() || dir;
+            const pngFilesInFolder = folderFiles.filter((f) =>
+              f.name.toLowerCase().endsWith(".png"),
+            );
+
+            const jsonFiles = folderFiles.filter(
+              (file) =>
+                file.name.toLowerCase().endsWith(".json") &&
+                !file.name.toLowerCase().includes("settings"),
+            );
+            for (const jsonFile of jsonFiles) {
+              const base = jsonFile.name.replace(/\.json$/i, "");
+              const atlasFile = folderFiles.find(
+                (file) =>
+                  file.name.toLowerCase() === `${base.toLowerCase()}.atlas`,
+              );
+              const pngFile =
+                folderFiles.find(
+                  (file) =>
+                    file.name.toLowerCase() === `${base.toLowerCase()}.png`,
+                ) ||
+                pngFilesInFolder[0] ||
+                null;
+              if (atlasFile && pngFilesInFolder.length > 0) {
+                entries.push({
+                  name: base,
+                  folder: folderName,
+                  jsonFile,
+                  skelFile: null,
+                  atlasFile,
+                  pngFile,
+                  pngFiles: pngFilesInFolder,
+                });
+              }
+            }
+
+            const skelFiles = folderFiles.filter((file) =>
+              file.name.toLowerCase().endsWith(".skel"),
+            );
+            for (const skelFile of skelFiles) {
+              const base = skelFile.name.replace(/\.skel$/i, "");
+              const alreadyHasJson = entries.some(
+                (entry) =>
+                  entry.folder === folderName &&
+                  entry.name.toLowerCase() === base.toLowerCase(),
+              );
+              if (alreadyHasJson) continue;
+
+              const atlasFile = folderFiles.find(
+                (file) =>
+                  file.name.toLowerCase() === `${base.toLowerCase()}.atlas`,
+              );
+              const pngFile =
+                folderFiles.find(
+                  (file) =>
+                    file.name.toLowerCase() === `${base.toLowerCase()}.png`,
+                ) ||
+                pngFilesInFolder[0] ||
+                null;
+              if (atlasFile && pngFilesInFolder.length > 0) {
+                entries.push({
+                  name: base,
+                  folder: folderName,
+                  jsonFile: null,
+                  skelFile,
+                  atlasFile,
+                  pngFile,
+                  pngFiles: pngFilesInFolder,
+                });
+              }
+            }
+          }
+
+          return entries.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        async function generateAll(entries) {
+          stopAllCardPreviewAnimations();
+          resetCardPreviewControllers();
+          clearCardPreviewFrameCache();
+          el.grid.replaceChildren();
+          skeletonStore.clear();
+
+          el.progressBar.style.display = "block";
+          el.progressFill.style.width = "0%";
+          setText(el.progressText, "Preparing previews...");
+
+          for (let index = 0; index < entries.length; index += 1) {
+            const entry = entries[index];
+            const type = entry.skelFile ? "SKEL" : "JSON";
+            const progress = Math.round(((index + 1) / entries.length) * 100);
+            el.progressFill.style.width = `${progress}%`;
+            setText(
+              el.progressText,
+              `Generating previews... ${index + 1}/${entries.length} (${entry.name}) [${type}]`,
+            );
+
+            try {
+              const {
+                skelData,
+                atlasText,
+                imageBundle,
+                sp,
+                isBinary,
+                version,
+                runtimeKey,
+              } = await loadSpineFiles(entry);
+              const {
+                skeletonData,
+                atlas,
+                usesPremultipliedAlpha,
+                glTexture,
+                sp: resolvedSp,
+                runtimeKey: resolvedRuntimeKey,
+              } = await createSkeletonDataWithRuntimeFallback(
+                skelData,
+                atlasText,
+                imageBundle,
+                sp,
+                runtimeKey,
+                isBinary,
+                version,
+              );
+
+              skeletonStore.set(index, {
+                skeletonData,
+                entry,
+                skelData,
+                atlasText,
+                imageBundle,
+                sp: resolvedSp,
+                isBinary,
+                version,
+                runtimeKey: resolvedRuntimeKey,
+                usesPremultipliedAlpha,
+              });
+
+              const animNames = Array.isArray(skeletonData.animations)
+                ? skeletonData.animations.map((anim) => anim.name)
+                : [];
+              const previewUrl = renderPreviewImage(
+                resolvedSp,
+                resolvedRuntimeKey,
+                skeletonData,
+                usesPremultipliedAlpha,
+              );
+              el.grid.appendChild(
+                createCard(
+                  entry,
+                  previewUrl,
+                  animNames,
+                  version,
+                  isBinary,
+                  index,
+                ),
+              );
+
+              glTexture.dispose();
+              atlas.dispose();
+            } catch (error) {
+              console.error(`Preview error for ${entry.name}:`, error);
+              const message =
+                error instanceof Error ? error.message : "Unknown error";
+              el.grid.appendChild(createErrorCard(entry, message, index));
+            }
+
+            if (index % 2 === 0) await sleep(5);
+          }
+
+          el.progressBar.style.display = "none";
+        }
+
+        async function openModal(index, animNames) {
+          const stored = skeletonStore.get(index);
+          if (!stored) return;
+
+          setText(
+            el.modalTitle,
+            stored.entry.name + (stored.version ? ` (v${stored.version})` : ""),
+          );
+          el.modalAnimSelect.replaceChildren();
+
+          for (const name of animNames) {
+            const option = document.createElement("option");
+            option.value = name;
+            option.textContent = name;
+            el.modalAnimSelect.appendChild(option);
+          }
+
+          stopModal();
+
+          const previousCanvas = document.getElementById("modalCanvas");
+          const wrap = previousCanvas.parentElement;
+          const canvas = document.createElement("canvas");
+          canvas.id = "modalCanvas";
+          canvas.width = wrap.clientWidth || 800;
+          canvas.height = wrap.clientHeight || 600;
+          wrap.replaceChild(canvas, previousCanvas);
+          el.modalCanvas = canvas;
+
+          try {
+            const { context, sceneRenderer, gl } = createSceneRenderer(
+              stored.sp,
+              canvas,
+              false,
+            );
+            const {
+              skeletonData,
+              glTexture,
+              atlas,
+              usesPremultipliedAlpha,
+            } = createSkeletonData(
+              stored.skelData,
+              stored.atlasText,
+              stored.imageBundle,
+              context,
+              stored.sp,
+              stored.isBinary,
+            );
+            const skeleton = new stored.sp.Skeleton(skeletonData);
+            resetSkeletonToSetupPose(skeleton);
+            applyFallbackSkinForRuntime(
+              stored.sp,
+              skeletonData,
+              skeleton,
+              stored.runtimeKey,
+            );
+            updateSkeletonWorld(stored.sp, skeleton);
+
+            const animationStateData = new stored.sp.AnimationStateData(
+              skeletonData,
+            );
+            animationStateData.defaultMix = 0.2;
+            const animationState = new stored.sp.AnimationState(
+              animationStateData,
+            );
+
+            const bounds = getSkeletonBounds(
+              stored.sp,
+              skeletonData,
+              stored.runtimeKey,
+            );
+            el.modalAnimSelect.onchange = () => {
+              if (!modalState?.running) return;
+              setPreviewAnimation(el.modalAnimSelect.value);
+            };
+            el.previewFpsSelect.onchange = () => {
+              if (!modalState?.running) return;
+              modalState.previewFps = getSelectedPreviewFps();
+              syncPreviewProgressUi();
+            };
+
+            const handleWheelZoom = (event) => {
+              if (!modalState?.running) return;
+              event.preventDefault();
+              const factor = Math.exp(-event.deltaY * 0.0016);
+              setModalZoom((modalState.zoom || MODAL_DEFAULT_ZOOM) * factor);
+            };
+            const handlePointerDown = (event) => {
+              if (!modalState?.running) return;
+              if (event.button !== 0 && event.button !== 1) return;
+              event.preventDefault();
+              modalState.isPanning = true;
+              modalState.lastPointerX = event.clientX;
+              modalState.lastPointerY = event.clientY;
+              canvas.classList.add("is-panning");
+              canvas.setPointerCapture?.(event.pointerId);
+            };
+            const handlePointerMove = (event) => {
+              if (!modalState?.running || !modalState.isPanning) return;
+              event.preventDefault();
+
+              const dx = event.clientX - modalState.lastPointerX;
+              const dy = event.clientY - modalState.lastPointerY;
+              modalState.lastPointerX = event.clientX;
+              modalState.lastPointerY = event.clientY;
+
+              const width = canvas.clientWidth || canvas.width || 1;
+              const height = canvas.clientHeight || canvas.height || 1;
+              const zoom = modalState.zoom || MODAL_DEFAULT_ZOOM;
+              const { viewW, viewH } = computeModalViewport(
+                modalState.bounds,
+                width,
+                height,
+                zoom,
+              );
+              modalState.panX -= (dx / width) * viewW;
+              modalState.panY += (dy / height) * viewH;
+            };
+            const endPan = (event) => {
+              if (!modalState) return;
+              modalState.isPanning = false;
+              canvas.classList.remove("is-panning");
+              if (event && typeof event.pointerId === "number") {
+                canvas.releasePointerCapture?.(event.pointerId);
+              }
+            };
+            canvas.addEventListener("wheel", handleWheelZoom, { passive: false });
+            canvas.addEventListener("pointerdown", handlePointerDown);
+            canvas.addEventListener("pointermove", handlePointerMove);
+            canvas.addEventListener("pointerup", endPan);
+            canvas.addEventListener("pointercancel", endPan);
+
+            let lastSimTime = Date.now();
+            let lastRenderTime = 0;
+            modalState = {
+              running: true,
+              context,
+              glTexture,
+              atlas,
+              sp: stored.sp,
+              skeleton,
+              animState: animationState,
+              bounds,
+              sceneRenderer,
+              gl,
+              skeletonData,
+              stored,
+              usesPremultipliedAlpha,
+              zoom: MODAL_DEFAULT_ZOOM,
+              previewFps: getSelectedPreviewFps(),
+              playing: true,
+              isScrubbing: false,
+              currentAnimationName: animNames[0] || "",
+              animationDuration: 0.001,
+              trackTime: 0,
+              panX: 0,
+              panY: 0,
+              isPanning: false,
+              lastPointerX: 0,
+              lastPointerY: 0,
+              canvas,
+              handleWheelZoom,
+              handlePointerDown,
+              handlePointerMove,
+              endPan,
+            };
+            syncModalZoomUi(MODAL_DEFAULT_ZOOM);
+            if (modalState.currentAnimationName) {
+              setPreviewAnimation(modalState.currentAnimationName);
+            } else {
+              syncPreviewProgressUi();
+            }
+            syncPlayPauseUi();
+
+            const loop = () => {
+              if (!modalState?.running) return;
+              requestAnimationFrame(loop);
+
+              const now = Date.now();
+              const targetFps = modalState.previewFps || MODAL_DEFAULT_PREVIEW_FPS;
+              const minFrameInterval = 1000 / targetFps;
+              if (lastRenderTime > 0 && now - lastRenderTime < minFrameInterval) {
+                return;
+              }
+              lastRenderTime = now;
+
+              const dt = Math.min((now - lastSimTime) / 1000, 0.1);
+              lastSimTime = now;
+
+              if (modalState.playing) {
+                animationState.update(dt);
+                modalState.trackTime += dt;
+                const duration = Math.max(0.001, modalState.animationDuration || 0.001);
+                if (duration > 0) {
+                  while (modalState.trackTime >= duration) {
+                    modalState.trackTime -= duration;
+                  }
+                }
+              }
+              animationState.apply(skeleton);
+              updateSkeletonWorld(stored.sp, skeleton);
+              syncPreviewProgressUi();
+
+              const width = wrap.clientWidth || 800;
+              const height = wrap.clientHeight || 600;
+              if (canvas.width !== width || canvas.height !== height) {
+                canvas.width = width;
+                canvas.height = height;
+              }
+
+              const zoom = modalState.zoom || MODAL_DEFAULT_ZOOM;
+              const { viewW, viewH } = computeModalViewport(
+                bounds,
+                width,
+                height,
+                zoom,
+              );
+              setupCamera(
+                sceneRenderer,
+                bounds.cx + (modalState.panX || 0),
+                bounds.cy + (modalState.panY || 0),
+                viewW,
+                viewH,
+              );
+              renderSkeleton(
+                sceneRenderer,
+                gl,
+                skeleton,
+                width,
+                height,
+                false,
+                usesPremultipliedAlpha,
+              );
+            };
+
+            loop();
+            el.modal.classList.add("open");
+            el.modal.setAttribute("aria-hidden", "false");
+          } catch (error) {
+            console.error("Modal open error:", error);
+            alert(
+              `Failed to open animation: ${error instanceof Error ? error.message : "Unknown error"}`,
+            );
+          }
+        }
+
+        function stopModal() {
+          if (!modalState) return;
+          modalState.running = false;
+          try {
+            modalState.canvas?.classList?.remove?.("is-panning");
+            modalState.canvas?.removeEventListener?.("wheel", modalState.handleWheelZoom);
+            modalState.canvas?.removeEventListener?.(
+              "pointerdown",
+              modalState.handlePointerDown,
+            );
+            modalState.canvas?.removeEventListener?.(
+              "pointermove",
+              modalState.handlePointerMove,
+            );
+            modalState.canvas?.removeEventListener?.("pointerup", modalState.endPan);
+            modalState.canvas?.removeEventListener?.("pointercancel", modalState.endPan);
+            modalState.glTexture?.dispose?.();
+            modalState.atlas?.dispose?.();
+            if (modalState.context) disposeRenderer(modalState.context);
+          } catch (error) {
+            console.warn("stopModal cleanup:", error);
+          }
+          modalState = null;
+        }
+
+        async function exportSpriteSheet() {
+          if (!modalState?.running) {
+            alert("Open an animation before exporting.");
+            return;
+          }
+
+          el.btnExport.disabled = true;
+          try {
+            const frameSize = Number.parseInt(el.exportSize.value, 10) || 256;
+            const fps = Number.parseInt(el.exportFps.value, 10) || 24;
+            const cols = Number.parseInt(el.exportCols.value, 10) || 8;
+            const dt = 1 / fps;
+            const { sp, stored, bounds } = modalState;
+
+            const exportCanvas = document.createElement("canvas");
+            exportCanvas.width = frameSize;
+            exportCanvas.height = frameSize;
+            const {
+              context: exCtx,
+              sceneRenderer: exRenderer,
+              gl: exGl,
+            } = createSceneRenderer(sp, exportCanvas, true, true);
+
+            const {
+              skeletonData: exportSkeletonData,
+              glTexture: exportTexture,
+              atlas: exportAtlas,
+              usesPremultipliedAlpha: exportUsesPremultipliedAlpha,
+            } = createSkeletonData(
+              stored.skelData,
+              stored.atlasText,
+              stored.imageBundle,
+              exCtx,
+              sp,
+              stored.isBinary,
+            );
+
+            const skeleton = new sp.Skeleton(exportSkeletonData);
+            resetSkeletonToSetupPose(skeleton);
+            applyFallbackSkinForRuntime(
+              sp,
+              exportSkeletonData,
+              skeleton,
+              stored.runtimeKey,
+            );
+            updateSkeletonWorld(sp, skeleton);
+
+            const animationStateData = new sp.AnimationStateData(
+              exportSkeletonData,
+            );
+            const animationState = new sp.AnimationState(animationStateData);
+            const animationName = el.modalAnimSelect.value;
+            animationState.setAnimation(0, animationName, false);
+
+            const animation = exportSkeletonData.animations.find(
+              (item) => item.name === animationName,
+            );
+            const duration = animation ? animation.duration : 1;
+            const totalFrames = Math.max(1, Math.ceil(duration * fps));
+            const rows = Math.ceil(totalFrames / cols);
+            setText(el.exportProgress, `0/${totalFrames} frames...`);
+
+            const sheetCanvas = document.createElement("canvas");
+            sheetCanvas.width = cols * frameSize;
+            sheetCanvas.height = rows * frameSize;
+            const sheetCtx = sheetCanvas.getContext("2d");
+
+            const viewH = bounds.h * 1.3;
+            const viewW = Math.max(viewH, bounds.w * 1.3);
+
+            for (let i = 0; i < totalFrames; i += 1) {
+              if (i === 0) {
+                resetSkeletonToSetupPose(skeleton);
+                animationState.setAnimation(0, animationName, false);
+                animationState.update(0);
+              } else {
+                animationState.update(dt);
+              }
+
+              animationState.apply(skeleton);
+              updateSkeletonWorld(sp, skeleton);
+
+              setupCamera(exRenderer, bounds.cx, bounds.cy, viewW, viewH);
+              renderSkeleton(
+                exRenderer,
+                exGl,
+                skeleton,
+                frameSize,
+                frameSize,
+                true,
+                exportUsesPremultipliedAlpha,
+              );
+
+              const col = i % cols;
+              const row = Math.floor(i / cols);
+              sheetCtx.drawImage(
+                exportCanvas,
+                col * frameSize,
+                row * frameSize,
+              );
+
+              setText(el.exportProgress, `${i + 1}/${totalFrames} frames...`);
+              if (i % 4 === 0) await sleep(1);
+            }
+
+            exportTexture.dispose();
+            exportAtlas.dispose();
+            disposeRenderer(exCtx);
+
+            const downloadLink = document.createElement("a");
+            downloadLink.download = `${stored.entry.name}_${animationName}_${frameSize}x${frameSize}_${totalFrames}f.png`;
+            downloadLink.href = sheetCanvas.toDataURL("image/png");
+            downloadLink.click();
+
+            setText(
+              el.exportProgress,
+              `Done: ${totalFrames} frames, ${sheetCanvas.width}x${sheetCanvas.height}px`,
+            );
+          } catch (error) {
+            console.error("Export error:", error);
+            setText(
+              el.exportProgress,
+              `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+            );
+          } finally {
+            el.btnExport.disabled = false;
+          }
+        }
+
+        function filterCards() {
+          const query = escapeNameForSearch(el.searchInput.value.trim());
+          let count = 0;
+
+          el.grid.querySelectorAll(".card").forEach((card) => {
+            const match =
+              !query || String(card.dataset.name || "").includes(query);
+            card.style.display = match ? "" : "none";
+            if (match) count += 1;
+          });
+
+          setText(el.statusCount, count);
+          reconnectCardPreviewObserver();
+        }
+
+        function clearAll() {
+          stopModal();
+          stopAllCardPreviewAnimations();
+          resetCardPreviewControllers();
+          dragOverlayDepth = 0;
+          hideDropOverlay();
+          clearCardPreviewFrameCache();
+          skeletonStore.clear();
+          allEntries = [];
+          selectedFiles = [];
+          el.statusBar.style.display = "none";
+          el.btnClear.hidden = true;
+          el.searchInput.value = "";
+          el.searchInput.disabled = true;
+          el.cardPreviewScaleSelect.value = "default";
+          cardPreviewCameraScale = CARD_PREVIEW_CAMERA_SCALE_DEFAULT;
+          el.folderInput.value = "";
+          if (el.howto) el.howto.style.display = "";
+          setText(el.exportProgress, "");
+          syncModalZoomUi(MODAL_DEFAULT_ZOOM);
+          showEmptyState();
+        }
+
+        async function ingestSelectedFiles(incomingFiles) {
+          const files = Array.isArray(incomingFiles) ? incomingFiles : [];
+          if (files.length === 0) return;
+
+          const mergedFiles = mergeSelectedFiles(files);
+          allEntries = groupSpineEntries(mergedFiles);
+          if (allEntries.length === 0) {
+            alert(
+              "No valid Spine sets found. Required: (.json or .skel) + .atlas + .png with matching base names.",
+            );
+            return;
+          }
+
+          selectedFiles = mergedFiles;
+          const folderSummary = getFolderSummary(mergedFiles);
+          if (el.howto) el.howto.style.display = "none";
+          el.statusBar.style.display = "flex";
+          el.btnClear.hidden = false;
+          el.searchInput.disabled = false;
+          setText(el.statusCount, allEntries.length);
+          setText(el.statusFolder, folderSummary);
+
+          await generateAll(allEntries);
+        }
+
+        async function handleFolderChange(event) {
+          const files = Array.from(event.target.files || []);
+          if (files.length === 0) return;
+          await ingestSelectedFiles(files);
+          event.target.value = "";
+        }
+
+        async function handleDrop(event) {
+          event.preventDefault();
+          dragOverlayDepth = 0;
+          hideDropOverlay();
+          try {
+            const droppedFiles = await collectDroppedFiles(event.dataTransfer);
+            if (droppedFiles.length === 0) return;
+            await ingestSelectedFiles(droppedFiles);
+          } catch (error) {
+            console.error("Drop import failed:", error);
+            alert(
+              `Drop upload failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+            );
+          }
+        }
+
+        function handleDragEnter(event) {
+          if (!isFileDrag(event)) return;
+          event.preventDefault();
+          dragOverlayDepth += 1;
+          showDropOverlay();
+        }
+
+        function handleDragOver(event) {
+          if (!isFileDrag(event)) return;
+          event.preventDefault();
+          if (event.dataTransfer) event.dataTransfer.dropEffect = "copy";
+          showDropOverlay();
+        }
+
+        function handleDragLeave(event) {
+          if (!isFileDrag(event)) return;
+          event.preventDefault();
+          dragOverlayDepth = Math.max(0, dragOverlayDepth - 1);
+          if (dragOverlayDepth === 0) hideDropOverlay();
+        }
+
+        function handleWindowBlur() {
+          dragOverlayDepth = 0;
+          hideDropOverlay();
+        }
+
+        el.pickFolderBtn.addEventListener("click", () =>
+          el.folderInput.click(),
+        );
+        el.folderInput.addEventListener("change", handleFolderChange);
+        window.addEventListener("dragenter", handleDragEnter);
+        window.addEventListener("dragover", handleDragOver);
+        window.addEventListener("dragleave", handleDragLeave);
+        window.addEventListener("drop", handleDrop);
+        window.addEventListener("blur", handleWindowBlur);
+        el.searchInput.addEventListener("input", filterCards);
+        el.cardPreviewScaleSelect.addEventListener("change", async () => {
+          cardPreviewCameraScale = getSelectedCardPreviewScale();
+          await refreshCardPreviewImages();
+        });
+        window.addEventListener("scroll", scheduleCardPreviewVisibilitySync, {
+          passive: true,
+        });
+        window.addEventListener("resize", scheduleCardPreviewVisibilitySync, {
+          passive: true,
+        });
+        el.grid.addEventListener("scroll", scheduleCardPreviewVisibilitySync, {
+          passive: true,
+        });
+        el.btnClear.addEventListener("click", clearAll);
+        el.playPauseBtn.addEventListener("click", () => {
+          if (!modalState?.running) return;
+          modalState.playing = !modalState.playing;
+          syncPlayPauseUi();
+        });
+        el.previewProgressRange.addEventListener("pointerdown", () => {
+          if (!modalState?.running) return;
+          modalState.isScrubbing = true;
+        });
+        el.previewProgressRange.addEventListener("pointerup", () => {
+          if (!modalState?.running) return;
+          modalState.isScrubbing = false;
+        });
+        el.previewProgressRange.addEventListener("change", () => {
+          if (!modalState?.running) return;
+          modalState.isScrubbing = false;
+        });
+        el.previewProgressRange.addEventListener("input", () => {
+          if (!modalState?.running) return;
+          const fps = clamp(
+            modalState.previewFps || MODAL_DEFAULT_PREVIEW_FPS,
+            1,
+            120,
+          );
+          const frameIndex = Math.max(
+            0,
+            Number.parseInt(el.previewProgressRange.value || "0", 10) || 0,
+          );
+          seekPreviewTo(frameIndex / fps);
+        });
+        el.zoomRange.addEventListener("input", () => {
+          if (!modalState?.running) return;
+          const nextZoom = Number(el.zoomRange.value) / 100;
+          setModalZoom(nextZoom);
+        });
+        el.zoomOutBtn.addEventListener("click", () => {
+          if (!modalState?.running) return;
+          setModalZoom((modalState.zoom || MODAL_DEFAULT_ZOOM) - MODAL_ZOOM_STEP);
+        });
+        el.zoomInBtn.addEventListener("click", () => {
+          if (!modalState?.running) return;
+          setModalZoom((modalState.zoom || MODAL_DEFAULT_ZOOM) + MODAL_ZOOM_STEP);
+        });
+        el.zoomResetBtn.addEventListener("click", () => {
+          if (!modalState?.running) return;
+          modalState.panX = 0;
+          modalState.panY = 0;
+          setModalZoom(MODAL_DEFAULT_ZOOM);
+        });
+        el.modalClose.addEventListener("click", () => {
+          el.modal.classList.remove("open");
+          el.modal.setAttribute("aria-hidden", "true");
+          stopModal();
+        });
+        el.modal.addEventListener("click", (event) => {
+          if (event.target === el.modal) {
+            el.modal.classList.remove("open");
+            el.modal.setAttribute("aria-hidden", "true");
+            stopModal();
+          }
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && el.modal.classList.contains("open")) {
+            el.modal.classList.remove("open");
+            el.modal.setAttribute("aria-hidden", "true");
+            stopModal();
+            return;
+          }
+          if (!modalState?.running || !el.modal.classList.contains("open")) return;
+          if (event.key === "+" || event.key === "=") {
+            event.preventDefault();
+            setModalZoom((modalState.zoom || MODAL_DEFAULT_ZOOM) + MODAL_ZOOM_STEP);
+            return;
+          }
+          if (event.key === "-" || event.key === "_") {
+            event.preventDefault();
+            setModalZoom((modalState.zoom || MODAL_DEFAULT_ZOOM) - MODAL_ZOOM_STEP);
+            return;
+          }
+          if (event.key === "0") {
+            event.preventDefault();
+            modalState.panX = 0;
+            modalState.panY = 0;
+            setModalZoom(MODAL_DEFAULT_ZOOM);
+          }
+        });
+        el.btnExport.addEventListener("click", exportSpriteSheet);
+
+        syncModalZoomUi(MODAL_DEFAULT_ZOOM);
+        showEmptyState();
+        window.clearAll = clearAll;
+        window.exportSpriteSheet = exportSpriteSheet;
+      })();
+    </script>
+  </body>
+</html>
